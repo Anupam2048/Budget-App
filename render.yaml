@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: budget-app-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd server && npm install && npx prisma generate && npx prisma db push && npm run build
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        value: file:./prod.db
+    disk:
+      name: sqlite-data
+      mountPath: /opt/render/project/src/server
+      sizeGB: 1
