@@ -203,7 +203,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 👨‍💻 Author
 
 **Anupam Yadav**
-- GitHub: [@yourusername](https://github.com/yourusername)
+- GitHub: [@Anupam2048](https://github.com/Anupam2048)
 
 ## 🙏 Acknowledgments
 
