@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  incomes       Income[]
+  expenses      Expense[]
+  budgets       Budget[]
+  goals         SavingsGoal[]
+  notifications Notification[]
+}
+
+model Income {
+  id        String   @id @default(uuid())
+  userId    String
+  source    String
+  amount    Float
+  frequency String   @default("ONCE") // ONCE, WEEKLY, MONTHLY, YEARLY
+  date      DateTime
+  user      User     @relation(fields: [userId], references: [id])
+  
+  @@index([userId, date])
+}
+
+model Expense {
+  id            String   @id @default(uuid())
+  userId        String
+  amount        Float
+  category      String
+  date          DateTime
+  paymentMethod String?
+  notes         String?
+  user          User     @relation(fields: [userId], references: [id])
+  
+  @@index([userId, date])
+  @@index([userId, category])
+}
+
+model Budget {
+  id        String   @id @default(uuid())
+  userId    String
+  category  String
+  amount    Float
+  monthYear String   // Format: "YYYY-MM"
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, category, monthYear])
+}
+
+model SavingsGoal {
+  id           String   @id @default(uuid())
+  userId       String
+  name         String
+  targetAmount Float
+  currentAmount Float   @default(0)
+  deadline     DateTime?
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  message   String
+  type      String   // ALERT, REMINDER, INSIGHT
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}

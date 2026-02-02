@@ -1,0 +1,6 @@
+@echo off
+cd server
+echo Regenerating Prisma Client...
+node node_modules/prisma/build/index.js generate
+echo Done! Press any key to close...
+pause
