@@ -52,6 +52,37 @@ export default {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
+                // Financial category colors
+                income: {
+                    DEFAULT: "#10b981", // emerald-500
+                    light: "#d1fae5",   // emerald-100
+                    dark: "#047857",    // emerald-700
+                },
+                expense: {
+                    DEFAULT: "#ef4444", // red-500
+                    light: "#fee2e2",   // red-100
+                    dark: "#b91c1c",    // red-700
+                },
+                balance: {
+                    DEFAULT: "#3b82f6", // blue-500
+                    light: "#dbeafe",   // blue-100
+                    dark: "#1d4ed8",    // blue-700
+                },
+                // Soft pastel palette for categories
+                pastel: {
+                    yellow: "#fef3c7",  // amber-100
+                    blue: "#dbeafe",    // blue-100
+                    green: "#d1fae5",   // emerald-100
+                    purple: "#e9d5ff",  // purple-100
+                    pink: "#fce7f3",    // pink-100
+                    orange: "#fed7aa",  // orange-100
+                },
+            },
+            backgroundImage: {
+                'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                'gradient-financial': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'gradient-success': 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                'gradient-danger': 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
             },
             borderRadius: {
                 lg: "var(--radius)",

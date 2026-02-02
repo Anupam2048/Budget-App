@@ -2,8 +2,9 @@
 
 A modern, full-stack web application for managing personal finances, tracking income and expenses, setting budgets, and gaining financial insights.
 
-![Budget Planner](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Budget Planner](https://img.shields.io/badge/version-2.0.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
+![UI](https://img.shields.io/badge/UI-Modern%20Fintech-purple.svg)
 
 ## ✨ Features
 
@@ -52,11 +53,12 @@ A modern, full-stack web application for managing personal finances, tracking in
 ### Frontend
 - **React 18** - Modern UI library
 - **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first styling
+- **Tailwind CSS** - Utility-first styling with custom design tokens
+- **shadcn/ui** - Beautifully designed component library
 - **Vite** - Fast build tool
 - **React Router** - Client-side routing
 - **Recharts** - Data visualization
-- **Lucide Icons** - Beautiful icons
+- **Lucide Icons** - Beautiful icon system
 - **Axios** - HTTP client
 
 ### Backend
@@ -155,14 +157,67 @@ VITE_API_URL=http://localhost:5000
 6. **Download PDF**: Get comprehensive reports
 7. **Get Insights**: Receive AI-powered recommendations
 
-## 🎨 Design Highlights
+## 🎨 UI/UX Highlights
 
-- **Modern Authentication Pages**: Two-card glassmorphism layout
-- **Password Strength Indicator**: Real-time validation
-- **Inline Error Messages**: User-friendly feedback
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Dark Mode Support**: Easy on the eyes
-- **Professional Footer**: Dynamic copyright notice
+### Modern Fintech Design
+- **Soft Pastel Color Palette**: Professional gradient backgrounds with semantic colors for income (green), expense (red), and balance (blue)
+- **Glassmorphism Effects**: Modern card-based layouts with soft shadows and hover lift animations
+- **Smooth Animations**: 300ms transitions on all interactive elements with cubic-bezier timing
+- **Custom Scrollbars**: Styled scrollbars for better visual consistency
+
+### Component Library
+- **StatCard**: Animated statistics cards with:
+  - Number counting animations
+  - Icon support with custom colors
+  - Trend indicators (up/down/neutral)
+  - Gradient background options
+- **CategoryIcon**: Color-coded category icons for Expenses and Budgets (Food, Transport, Shopping, Rent, Entertainment, Utilities, Healthcare)
+- **Enhanced Progress Bars**: Color variants (success, warning, danger) with smooth animations
+
+### Page-Specific Features
+
+#### Dashboard
+- Animated StatCards showing Total Balance, Income, Expenses, and Recent Activity
+- Financial Overview section with large gradient balance display
+- Recent Transactions with transaction type icons and scrollable list
+- Budget Overview widget displaying top 3 budgets with progress indicators
+- Over-budget warnings with AlertTriangle icons
+
+#### Incomes & Expenses
+- Enhanced stat cards with TrendingUp/TrendingDown icons
+- Category-specific icons with pastel backgrounds
+- Table hover effects with smooth transitions
+- Improved visual hierarchy with larger text and better spacing
+
+#### Budgets & Savings Goals
+- Real-time progress tracking with color-coded bars:
+  - Green (< 75% used)
+  - Yellow (75-99% used)
+  - Red (≥ 100% used - over budget)
+- Over-budget visual warnings with red borders and alert messages
+- Achievement celebrations for completed savings goals with 🎉 indicator
+- CategoryIcon integration for easy identification
+
+#### Reports
+- Larger charts (350px height) for better readability
+- Enhanced download button with gradient styling
+- Improved spacing and visual hierarchy
+- Icon-enhanced stat cards
+
+#### Settings
+- **Cloud Sync UI** (Coming Soon):
+  - Toggle switch with  purple gradient
+  - Sync status indicator
+  - Last sync time display
+  - "Sync Now" button (UI-only placeholder)
+- Enhanced Danger Zone with AlertTriangle icon and warning styling
+- Improved card separation with soft shadows
+
+### Responsive Design
+- Desktop-first approach optimized for larger screens
+- Graceful degradation to tablet and mobile devices
+- Grid layouts that adapt to screen size
+- Touch-friendly interactive elements
 
 ## 🔒 Security
 

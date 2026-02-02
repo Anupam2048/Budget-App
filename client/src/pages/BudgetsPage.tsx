@@ -4,7 +4,8 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Progress } from "../components/ui/progress";
-import { Plus, Target } from "lucide-react";
+import { Plus, Target, AlertTriangle, TrendingUp } from "lucide-react";
+import { CategoryIcon } from "../components/ui/CategoryIcon";
 import {
     Dialog,
     DialogContent,
@@ -232,27 +233,52 @@ export default function BudgetsPage() {
                             const spent = getSpentAmount(budget.category, budget.monthYear);
                             const percentage = Math.min((spent / budget.amount) * 100, 100);
                             const isOver = spent > budget.amount;
+                            const isWarning = percentage > 80 && !isOver;
 
                             return (
-                                <Card key={budget.id}>
-                                    <CardHeader className="pb-2">
-                                        <div className="flex justify-between items-center">
-                                            <CardTitle className="text-lg">{budget.category}</CardTitle>
-                                            <span className={isOver ? "text-red-500 font-bold" : "text-muted-foreground"}>
+                                <Card key={budget.id} className={`shadow-soft hover-lift transition-all ${isOver ? 'border-expense ring-2 ring-expense-light' : ''
+                                    }`}>
+                                    <CardHeader className="pb-3">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <CategoryIcon category={budget.category} size="md" />
+                                            <div className="flex-1">
+                                                <CardTitle className="text-lg flex items-center gap-2">
+                                                    {budget.category}
+                                                    {isOver && (
+                                                        <AlertTriangle className="h-4 w-4 text-expense" />
+                                                    )}
+                                                </CardTitle>
+                                                <p className="text-xs text-muted-foreground">{budget.monthYear}</p>
+                                            </div>
+                                            <span className={`text-lg font-bold ${isOver ? "text-expense" : isWarning ? "text-yellow-600" : "text-muted-foreground"
+                                                }`}>
                                                 {percentage.toFixed(0)}%
                                             </span>
                                         </div>
-                                        <p className="text-xs text-muted-foreground">{budget.monthYear}</p>
                                     </CardHeader>
                                     <CardContent>
                                         <Progress
                                             value={percentage}
-                                            className={`h-2 mb-2 ${isOver ? '[&>div]:bg-red-500' : ''}`}
+                                            variant={isOver ? 'danger' : isWarning ? 'warning' : 'success'}
+                                            className="h-3 mb-3"
                                         />
-                                        <div className="flex justify-between text-sm text-muted-foreground">
-                                            <span>{symbol}{spent.toFixed(2)} spent</span>
-                                            <span>{symbol}{budget.amount.toFixed(2)} limit</span>
+                                        <div className="flex justify-between text-sm">
+                                            <div>
+                                                <span className="text-muted-foreground">Spent: </span>
+                                                <span className={`font-semibold ${isOver ? 'text-expense' : 'text-foreground'}`}>
+                                                    {symbol}{spent.toFixed(2)}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span className="text-muted-foreground">Limit: </span>
+                                                <span className="font-medium">{symbol}{budget.amount.toFixed(2)}</span>
+                                            </div>
                                         </div>
+                                        {isOver && (
+                                            <div className="mt-3 p-2 bg-expense-light rounded-md">
+                                                <p className="text-xs text-expense font-medium">⚠️ Over budget by {symbol}{(spent - budget.amount).toFixed(2)}</p>
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
                             );
@@ -341,29 +367,54 @@ export default function BudgetsPage() {
                     <div className="grid gap-4 md:grid-cols-2">
                         {goals.map((goal) => {
                             const percentage = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
+                            const isCompleted = percentage >= 100;
+
                             return (
-                                <Card key={goal.id}>
+                                <Card key={goal.id} className={`shadow-soft hover-lift transition-all ${isCompleted ? 'border-income ring-2 ring-income-light' : ''
+                                    }`}>
                                     <CardHeader>
-                                        <CardTitle>{goal.name}</CardTitle>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Target className={`h-5 w-5 ${isCompleted ? 'text-income' : 'text-purple-500'}`} />
+                                            {goal.name}
+                                            {isCompleted && <span className="text-sm">🎉</span>}
+                                        </CardTitle>
                                         <CardDescription>
                                             Target: {symbol}{goal.targetAmount.toFixed(2)}
                                             {goal.deadline && ` by ${new Date(goal.deadline).toLocaleDateString()}`}
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="space-y-2">
+                                        <div className="space-y-3">
                                             <div className="flex justify-between text-sm">
-                                                <span className="font-medium">{symbol}{goal.currentAmount.toFixed(2)} saved</span>
-                                                <span className="text-muted-foreground">{percentage.toFixed(0)}%</span>
+                                                <span className="font-semibold text-foreground">
+                                                    {symbol}{goal.currentAmount.toFixed(2)} saved
+                                                </span>
+                                                <span className={`font-bold ${isCompleted ? 'text-income' : 'text-muted-foreground'
+                                                    }`}>
+                                                    {percentage.toFixed(0)}%
+                                                </span>
                                             </div>
-                                            <Progress value={percentage} className="h-3" />
+                                            <Progress
+                                                value={percentage}
+                                                variant={isCompleted ? 'success' : 'default'}
+                                                className="h-3"
+                                            />
+                                            {isCompleted && (
+                                                <div className="mt-2 p-2 bg-income-light rounded-md">
+                                                    <p className="text-xs text-income font-medium flex items-center gap-1">
+                                                        <TrendingUp className="h-3 w-3" />
+                                                        Goal achieved! Great job!
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     </CardContent>
                                 </Card>
                             );
                         })}
                     </div>
-                )}
+                )
+                }
             </div>
         </div>
     );

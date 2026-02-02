@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, TrendingDown } from "lucide-react";
+import { CategoryIcon } from "../components/ui/CategoryIcon";
 import {
     Table,
     TableBody,
@@ -12,7 +13,6 @@ import {
     TableHeader,
     TableRow,
 } from "../components/ui/table";
-import { Badge } from "../components/ui/badge";
 import {
     Dialog,
     DialogContent,
@@ -249,14 +249,16 @@ export default function ExpensesPage() {
                 </Dialog>
             </div>
 
+            {/* Statistics Cards */}
             <div className="grid gap-4 md:grid-cols-3">
-                <Card>
+                <Card className="shadow-soft hover-lift">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+                        <TrendingDown className="h-4 w-4 text-expense" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{symbol}{totalExpense.toFixed(2)}</div>
-                        <p className="text-xs text-muted-foreground">All time</p>
+                        <div className="text-3xl font-bold text-expense">{symbol}{totalExpense.toFixed(2)}</div>
+                        <p className="text-xs text-muted-foreground mt-1">All time spending</p>
                     </CardContent>
                 </Card>
             </div>
@@ -286,7 +288,7 @@ export default function ExpensesPage() {
                 />
             </div>
 
-            <Card>
+            <Card className="shadow-soft">
                 <CardHeader>
                     <CardTitle>Expense History</CardTitle>
                 </CardHeader>
@@ -320,9 +322,12 @@ export default function ExpensesPage() {
                             </TableHeader>
                             <TableBody>
                                 {filteredExpenses.map((expense) => (
-                                    <TableRow key={expense.id}>
+                                    <TableRow key={expense.id} className="hover:bg-slate-50 transition-colors">
                                         <TableCell className="font-medium">
-                                            <Badge variant="outline">{expense.category}</Badge>
+                                            <div className="flex items-center gap-2">
+                                                <CategoryIcon category={expense.category} size="sm" />
+                                                <span>{expense.category}</span>
+                                            </div>
                                         </TableCell>
                                         <TableCell>{new Date(expense.date).toLocaleDateString()}</TableCell>
                                         <TableCell className="text-muted-foreground">{expense.notes || '-'}</TableCell>

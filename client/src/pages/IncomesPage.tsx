@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, TrendingUp } from "lucide-react";
 import {
     Table,
     TableBody,
@@ -206,19 +206,21 @@ export default function IncomesPage() {
                 </Dialog>
             </div>
 
+            {/* Statistics Card */}
             <div className="grid gap-4 md:grid-cols-3">
-                <Card>
+                <Card className="shadow-soft hover-lift">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Income</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-income" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{symbol}{totalIncome.toFixed(2)}</div>
-                        <p className="text-xs text-muted-foreground">All time</p>
+                        <div className="text-3xl font-bold text-income">{symbol}{totalIncome.toFixed(2)}</div>
+                        <p className="text-xs text-muted-foreground mt-1">All time earnings</p>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card>
+            <Card className="shadow-soft">
                 <CardHeader>
                     <CardTitle>Income History</CardTitle>
                 </CardHeader>
@@ -242,13 +244,13 @@ export default function IncomesPage() {
                             </TableHeader>
                             <TableBody>
                                 {incomes.map((income) => (
-                                    <TableRow key={income.id}>
+                                    <TableRow key={income.id} className="hover:bg-slate-50 transition-colors">
                                         <TableCell className="font-medium">{income.source}</TableCell>
                                         <TableCell>{new Date(income.date).toLocaleDateString()}</TableCell>
                                         <TableCell>
                                             <Badge variant="secondary">{income.frequency}</Badge>
                                         </TableCell>
-                                        <TableCell className="text-right text-green-600 font-semibold">
+                                        <TableCell className="text-right text-income font-semibold">
                                             +{symbol}{income.amount.toFixed(2)}
                                         </TableCell>
                                         <TableCell className="text-right">

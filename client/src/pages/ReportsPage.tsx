@@ -6,7 +6,7 @@ import { Label } from "../components/ui/label";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
 import { analyticsAPI } from '../lib/api';
 import { useCurrency } from '../contexts/CurrencyContext';
-import { Calendar } from 'lucide-react';
+import { Calendar, Download, TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function ReportsPage() {
     const { symbol } = useCurrency();
@@ -117,10 +117,10 @@ export default function ReportsPage() {
             </div>
 
             {/* Date Filter Card */}
-            <Card>
+            <Card className="shadow-soft">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Calendar className="h-5 w-5" />
+                        <Calendar className="h-5 w-5 text-blue-500" />
                         Date Range Filter
                     </CardTitle>
                     <CardDescription>
@@ -153,8 +153,9 @@ export default function ReportsPage() {
                             variant="default"
                             onClick={handleDownloadReport}
                             disabled={downloading || loading}
-                            className="ml-auto"
+                            className="ml-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                         >
+                            <Download className="mr-2 h-4 w-4" />
                             {downloading ? 'Generating PDF...' : 'Download PDF Report'}
                         </Button>
                     </div>
@@ -166,32 +167,34 @@ export default function ReportsPage() {
 
             {/* Summary Cards */}
             <div className="grid gap-4 md:grid-cols-3">
-                <Card>
+                <Card className="shadow-soft hover-lift">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Income</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-income" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-green-600">
+                        <div className="text-3xl font-bold text-income">
                             {symbol}{reportData.totalIncome.toFixed(2)}
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="shadow-soft hover-lift">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Expense</CardTitle>
+                        <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+                        <TrendingDown className="h-4 w-4 text-expense" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-red-600">
+                        <div className="text-3xl font-bold text-expense">
                             {symbol}{reportData.totalExpense.toFixed(2)}
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="shadow-soft hover-lift">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Balance</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className={`text-2xl font-bold ${reportData.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <div className={`text-3xl font-bold ${reportData.balance >= 0 ? 'text-income' : 'text-expense'}`}>
                             {symbol}{reportData.balance.toFixed(2)}
                         </div>
                     </CardContent>
@@ -199,13 +202,13 @@ export default function ReportsPage() {
             </div>
 
             {/* Charts */}
-            <div className="grid gap-4 md:grid-cols-2">
-                <Card>
+            <div className="grid gap-6 md:grid-cols-2">
+                <Card className="shadow-soft">
                     <CardHeader>
                         <CardTitle>Income vs Expenses</CardTitle>
-                        <CardDescription>Monthly comparison</CardDescription>
+                        <CardDescription>Monthly comparison over time</CardDescription>
                     </CardHeader>
-                    <CardContent className="h-[300px]">
+                    <CardContent className="h-[350px]">
                         {monthlyData.length === 0 ? (
                             <div className="flex items-center justify-center h-full text-muted-foreground">
                                 No monthly data available

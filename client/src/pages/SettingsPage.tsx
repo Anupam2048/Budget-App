@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { User, Lock, Download, Trash2 } from "lucide-react";
+import { User, Lock, Download, Trash2, Cloud, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { authAPI } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -25,6 +25,9 @@ export default function SettingsPage() {
         newPassword: '',
         confirmPassword: '',
     });
+
+    const [cloudSyncEnabled, setCloudSyncEnabled] = useState(false);
+    const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
 
     useEffect(() => {
         fetchUserData();
@@ -228,15 +231,83 @@ export default function SettingsPage() {
                 </CardContent>
             </Card>
 
-            {/* Danger Zone */}
-            <Card className="border-red-200 dark:border-red-900">
+            {/* Cloud Sync Section */}
+            <Card className="shadow-soft hover-lift border-purple-200">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-500">
-                        <Trash2 className="h-5 w-5" />
-                        Danger Zone
+                    <CardTitle className="flex items-center gap-2">
+                        <Cloud className="h-5 w-5 text-purple-500" />
+                        Cloud Sync
+                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-normal">Coming Soon</span>
                     </CardTitle>
                     <CardDescription>
-                        Irreversible actions
+                        Keep your data synchronized across devices
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg">
+                        <div className="space-y-1 flex-1">
+                            <div className="font-medium flex items-center gap-2">
+                                Enable Cloud Sync
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Automatically backup and sync your financial data
+                            </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer ml-4">
+                            <input
+                                type="checkbox"
+                                checked={cloudSyncEnabled}
+                                onChange={(e) => {
+                                    setCloudSyncEnabled(e.target.checked);
+                                    if (e.target.checked) {
+                                        setLastSyncTime(new Date());
+                                    }
+                                }}
+                                className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                        </label>
+                    </div>
+
+                    {cloudSyncEnabled && (
+                        <div className="space-y-3 animate-in fade-in duration-300">
+                            <div className="flex items-center gap-2 text-sm">
+                                {lastSyncTime ? (
+                                    <>
+                                        <CheckCircle2 className="h-4 w-4 text-income" />
+                                        <span className="text-muted-foreground">
+                                            Last synced: {lastSyncTime.toLocaleTimeString()}
+                                        </span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <XCircle className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-muted-foreground">Not synced yet</span>
+                                    </>
+                                )}
+                            </div>
+                            <Button
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => setLastSyncTime(new Date())}
+                            >
+                                <Cloud className="mr-2 h-4 w-4" />
+                                Sync Now
+                            </Button>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Danger Zone */}
+            <Card className="shadow-soft border-expense">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-expense">
+                        <AlertTriangle className="h-5 w-5" />
+                        Danger Zone
+                    </CardTitle>
+                    <CardDescription className="text-red-600">
+                        Irreversible actions - proceed with caution
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
