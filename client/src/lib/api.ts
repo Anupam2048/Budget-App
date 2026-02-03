@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000',
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
 });
 
 // Add token to all requests
@@ -41,38 +41,57 @@ export const authAPI = {
 
 export const incomeAPI = {
     getAll: (params?: { page?: number; limit?: number; startDate?: string; endDate?: string }) =>
-        api.get('/api/incomes', { params }),
+        api.get('/api/v1/transactions/incomes', { params }),
     create: (data: { source: string; amount: number; frequency: string; date: string }) =>
-        api.post('/api/incomes', data),
-    delete: (id: string) => api.delete(`/api/incomes/${id}`),
+        api.post('/api/v1/transactions/incomes', data),
+    delete: (id: string) => api.delete(`/api/v1/transactions/incomes/${id}`),
 };
 
 export const expenseAPI = {
     getAll: (params?: { page?: number; limit?: number; category?: string; startDate?: string; endDate?: string }) =>
-        api.get('/api/expenses', { params }),
+        api.get('/api/v1/transactions/expenses', { params }),
     create: (data: { category: string; amount: number; date: string; notes?: string; paymentMethod?: string }) =>
-        api.post('/api/expenses', data),
-    delete: (id: string) => api.delete(`/api/expenses/${id}`),
+        api.post('/api/v1/transactions/expenses', data),
+    update: (id: string, data: { category: string; amount: number; date: string; notes?: string; paymentMethod?: string }) =>
+        api.put(`/api/v1/transactions/expenses/${id}`, data),
+    delete: (id: string) => api.delete(`/api/v1/transactions/expenses/${id}`),
 };
 
 export const budgetAPI = {
-    getAll: () => api.get('/api/budgets'),
+    getAll: () => api.get('/api/v1/budgets/budgets'),
     create: (data: { category: string; amount: number; monthYear: string }) =>
-        api.post('/api/budgets', data),
+        api.post('/api/v1/budgets/budgets', data),
 };
 
 export const goalAPI = {
-    getAll: () => api.get('/api/goals'),
+    getAll: () => api.get('/api/v1/budgets/goals'),
     create: (data: { name: string; targetAmount: number; currentAmount?: number; deadline?: string }) =>
-        api.post('/api/goals', data),
+        api.post('/api/v1/budgets/goals', data),
 };
 
 export const analyticsAPI = {
-    getDashboard: () => api.get('/api/analytics/dashboard'),
+    getDashboard: () => api.get('/api/v1/analytics/dashboard'),
     getReports: (params?: { startDate?: string; endDate?: string }) =>
-        api.get('/api/analytics/reports', { params }),
+        api.get('/api/v1/analytics/reports', { params }),
+    getInsights: () => api.get('/api/v1/analytics/insights'),
     downloadReport: (params?: { startDate?: string; endDate?: string }) =>
-        api.get('/api/reports/download', { params, responseType: 'blob' }),
+        api.get('/api/v1/reports/download', { params, responseType: 'blob' }),
+};
+
+export const emiAPI = {
+    getAll: () => api.get('/api/v1/emis'),
+    getById: (id: string) => api.get(`/api/v1/emis/${id}`),
+    create: (data: any) => api.post('/api/v1/emis', data),
+    update: (id: string, data: any) => api.put(`/api/v1/emis/${id}`, data),
+    delete: (id: string) => api.delete(`/api/v1/emis/${id}`),
+};
+
+export const subscriptionAPI = {
+    getAll: () => api.get('/api/v1/subscriptions'),
+    getById: (id: string) => api.get(`/api/v1/subscriptions/${id}`),
+    create: (data: any) => api.post('/api/v1/subscriptions', data),
+    update: (id: string, data: any) => api.put(`/api/v1/subscriptions/${id}`, data),
+    delete: (id: string) => api.delete(`/api/v1/subscriptions/${id}`),
 };
 
 export default api;

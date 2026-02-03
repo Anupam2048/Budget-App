@@ -68,6 +68,12 @@ export default {
                     light: "#dbeafe",   // blue-100
                     dark: "#1d4ed8",    // blue-700
                 },
+                // SpendZen Brand Colors
+                spendzen: {
+                    primary: "#10B981", // emerald-500
+                    secondary: "#0EA5E9", // cyan-500
+                    gradient: "linear-gradient(135deg, #10B981 0%, #0EA5E9 100%)",
+                },
                 // Soft pastel palette for categories
                 pastel: {
                     yellow: "#fef3c7",  // amber-100

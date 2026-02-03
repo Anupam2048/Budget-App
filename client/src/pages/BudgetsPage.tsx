@@ -4,7 +4,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Progress } from "../components/ui/progress";
-import { Plus, Target, AlertTriangle, TrendingUp } from "lucide-react";
+import { Plus, Target, AlertTriangle, TrendingUp, TrendingDown, DollarSign, PieChart } from "lucide-react";
 import { CategoryIcon } from "../components/ui/CategoryIcon";
 import {
     Dialog,
@@ -39,6 +39,7 @@ export default function BudgetsPage() {
     const [goals, setGoals] = useState<Goal[]>([]);
     const [expenses, setExpenses] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
 
     const [isBudgetDialogOpen, setIsBudgetDialogOpen] = useState(false);
     const [isGoalDialogOpen, setIsGoalDialogOpen] = useState(false);
@@ -46,7 +47,7 @@ export default function BudgetsPage() {
     const [budgetFormData, setBudgetFormData] = useState({
         category: '',
         amount: '',
-        monthYear: new Date().toISOString().slice(0, 7), // YYYY-MM
+        monthYear: new Date().toISOString().slice(0, 7),
     });
 
     const [goalFormData, setGoalFormData] = useState({
@@ -71,7 +72,6 @@ export default function BudgetsPage() {
             setBudgets(budgetsRes.data);
             setGoals(goalsRes.data);
 
-            // Handle new API format
             const expensesData = Array.isArray(expensesRes.data) ? expensesRes.data : expensesRes.data.expenses;
             setExpenses(expensesData || []);
 
@@ -149,12 +149,26 @@ export default function BudgetsPage() {
             .reduce((sum, exp) => sum + exp.amount, 0);
     };
 
+    // Calculate overall budget stats for selected month
+    const currentMonthBudgets = budgets.filter(b => b.monthYear === selectedMonth);
+    const totalBudgeted = currentMonthBudgets.reduce((sum, b) => sum + b.amount, 0);
+    const totalSpent = currentMonthBudgets.reduce((sum, b) => sum + getSpentAmount(b.category, b.monthYear), 0);
+    const budgetUtilization = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
+    const remainingBudget = totalBudgeted - totalSpent;
+    const categoriesOverBudget = currentMonthBudgets.filter(b => getSpentAmount(b.category, b.monthYear) > b.amount).length;
+
     return (
         <div className="space-y-6">
-            {/* Budgets Section */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-3xl font-bold tracking-tight">Budgets</h2>
+            {/* Month Selector */}
+            <div className="flex items-center justify-between">
+                <h2 className="text-3xl font-bold tracking-tight">Budgets</h2>
+                <div className="flex items-center gap-3">
+                    <Input
+                        type="month"
+                        value={selectedMonth}
+                        onChange={(e) => setSelectedMonth(e.target.value)}
+                        className="w-48"
+                    />
                     <Dialog open={isBudgetDialogOpen} onOpenChange={setIsBudgetDialogOpen}>
                         <DialogTrigger asChild>
                             <Button>
@@ -196,6 +210,7 @@ export default function BudgetsPage() {
                                             id="budget-amount"
                                             type="number"
                                             step="0.01"
+                                            min="0.01"
                                             placeholder="0.00"
                                             value={budgetFormData.amount}
                                             onChange={(e) => setBudgetFormData({ ...budgetFormData, amount: e.target.value })}
@@ -220,18 +235,98 @@ export default function BudgetsPage() {
                         </DialogContent>
                     </Dialog>
                 </div>
+            </div>
 
+            {/* Budget Overview Stats */}
+            {currentMonthBudgets.length > 0 && (
+                <div className="grid gap-4 md:grid-cols-4">
+                    <Card className="shadow-soft hover-lift">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
+                            <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{symbol}{totalBudgeted.toFixed(2)}</div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                {currentMonthBudgets.length} {currentMonthBudgets.length === 1 ? 'category' : 'categories'}
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="shadow-soft hover-lift">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
+                            <TrendingDown className="h-4 w-4 text-expense" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-expense">{symbol}{totalSpent.toFixed(2)}</div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                {budgetUtilization.toFixed(1)}% of budget used
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="shadow-soft hover-lift">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Remaining</CardTitle>
+                            <PieChart className={`h-4 w-4 ${remainingBudget >= 0 ? 'text-income' : 'text-expense'}`} />
+                        </CardHeader>
+                        <CardContent>
+                            <div className={`text-2xl font-bold ${remainingBudget >= 0 ? 'text-income' : 'text-expense'}`}>
+                                {symbol}{Math.abs(remainingBudget).toFixed(2)}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                {remainingBudget >= 0 ? 'Still available' : 'Over budget'}
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="shadow-soft hover-lift">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Budget Health</CardTitle>
+                            <AlertTriangle className={`h-4 w-4 ${categoriesOverBudget > 0 ? 'text-expense' : 'text-income'}`} />
+                        </CardHeader>
+                        <CardContent>
+                            <div className={`text-2xl font-bold ${categoriesOverBudget > 0 ? 'text-expense' : 'text-income'}`}>
+                                {categoriesOverBudget > 0 ? `${categoriesOverBudget} Over` : 'On Track'}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                {categoriesOverBudget > 0
+                                    ? `${categoriesOverBudget} ${categoriesOverBudget === 1 ? 'category' : 'categories'} exceeded`
+                                    : 'All budgets healthy'}
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
+            {/* Budget Cards */}
+            <div className="space-y-4">
                 {loading ? (
                     <div className="text-center py-8 text-muted-foreground">Loading budgets...</div>
-                ) : budgets.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                        No budgets set yet. Click "Set Budget" to create one.
-                    </div>
+                ) : currentMonthBudgets.length === 0 ? (
+                    <Card className="shadow-soft">
+                        <CardContent className="pt-6">
+                            <div className="text-center py-8">
+                                <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                                    <Target className="h-6 w-6 text-muted-foreground" />
+                                </div>
+                                <h3 className="text-lg font-semibold mb-2">No budgets for {new Date(selectedMonth + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
+                                <p className="text-sm text-muted-foreground mb-4 max-w-sm mx-auto">
+                                    Set monthly budgets to track your spending and stay on target
+                                </p>
+                                <Button onClick={() => setIsBudgetDialogOpen(true)} size="sm">
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Set Your First Budget
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {budgets.map((budget) => {
+                        {currentMonthBudgets.map((budget) => {
                             const spent = getSpentAmount(budget.category, budget.monthYear);
-                            const percentage = Math.min((spent / budget.amount) * 100, 100);
+                            const percentage = (spent / budget.amount) * 100;
                             const isOver = spent > budget.amount;
                             const isWarning = percentage > 80 && !isOver;
 
@@ -252,13 +347,13 @@ export default function BudgetsPage() {
                                             </div>
                                             <span className={`text-lg font-bold ${isOver ? "text-expense" : isWarning ? "text-yellow-600" : "text-muted-foreground"
                                                 }`}>
-                                                {percentage.toFixed(0)}%
+                                                {Math.min(percentage, 999).toFixed(0)}%
                                             </span>
                                         </div>
                                     </CardHeader>
                                     <CardContent>
                                         <Progress
-                                            value={percentage}
+                                            value={Math.min(percentage, 100)}
                                             variant={isOver ? 'danger' : isWarning ? 'warning' : 'success'}
                                             className="h-3 mb-3"
                                         />
@@ -274,9 +369,17 @@ export default function BudgetsPage() {
                                                 <span className="font-medium">{symbol}{budget.amount.toFixed(2)}</span>
                                             </div>
                                         </div>
-                                        {isOver && (
+                                        {isOver ? (
                                             <div className="mt-3 p-2 bg-expense-light rounded-md">
                                                 <p className="text-xs text-expense font-medium">⚠️ Over budget by {symbol}{(spent - budget.amount).toFixed(2)}</p>
+                                            </div>
+                                        ) : isWarning ? (
+                                            <div className="mt-3 p-2 bg-yellow-50 rounded-md">
+                                                <p className="text-xs text-yellow-700 font-medium">⚡ Approaching limit - {symbol}{(budget.amount - spent).toFixed(2)} left</p>
+                                            </div>
+                                        ) : (
+                                            <div className="mt-3 p-2 bg-income-light rounded-md">
+                                                <p className="text-xs text-income font-medium">✓ {symbol}{(budget.amount - spent).toFixed(2)} remaining</p>
                                             </div>
                                         )}
                                     </CardContent>
@@ -360,9 +463,23 @@ export default function BudgetsPage() {
                 {loading ? (
                     <div className="text-center py-8 text-muted-foreground">Loading goals...</div>
                 ) : goals.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                        No savings goals yet. Click "Add Goal" to create one.
-                    </div>
+                    <Card className="shadow-soft">
+                        <CardContent className="pt-6">
+                            <div className="text-center py-8">
+                                <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                                    <Target className="h-6 w-6 text-muted-foreground" />
+                                </div>
+                                <h3 className="text-lg font-semibold mb-2">No savings goals yet</h3>
+                                <p className="text-sm text-muted-foreground mb-4 max-w-sm mx-auto">
+                                    Set savings goals to track your progress towards financial milestones
+                                </p>
+                                <Button onClick={() => setIsGoalDialogOpen(true)} size="sm" variant="secondary">
+                                    <Target className="mr-2 h-4 w-4" />
+                                    Create Your First Goal
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2">
                         {goals.map((goal) => {

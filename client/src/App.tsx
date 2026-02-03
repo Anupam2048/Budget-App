@@ -7,6 +7,9 @@ import BudgetsPage from './pages/BudgetsPage';
 import ReportsPage from './pages/ReportsPage';
 import InsightsPage from './pages/InsightsPage';
 import SettingsPage from './pages/SettingsPage';
+import EMIPage from './pages/EMIPage';
+import SubscriptionsPage from './pages/SubscriptionsPage';
+import PremiumPage from './pages/PremiumPage';
 import Layout from './components/layout/Layout';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 
@@ -33,8 +36,11 @@ function App() {
           <Route path="incomes" element={<IncomesPage />} />
           <Route path="expenses" element={<ExpensesPage />} />
           <Route path="budgets" element={<BudgetsPage />} />
+          <Route path="emi" element={<EMIPage />} />
+          <Route path="subscriptions" element={<SubscriptionsPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="insights" element={<InsightsPage />} />
+          <Route path="premium" element={<PremiumPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>

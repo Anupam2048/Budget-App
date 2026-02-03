@@ -21,6 +21,8 @@ model User {
   budgets       Budget[]
   goals         SavingsGoal[]
   notifications Notification[]
+  emis          EMI[]
+  subscriptions Subscription[]
 }
 
 model Income {
@@ -78,4 +80,34 @@ model Notification {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model EMI {
+  id          String   @id @default(uuid())
+  userId      String
+  name        String   // e.g., "Car Loan", "Home Loan"
+  amount      Float    // Monthly EMI amount
+  totalAmount Float?   // Total loan amount (optional)
+  dueDate     Int      // Day of month (1-31)
+  startDate   DateTime
+  endDate     DateTime?
+  isActive    Boolean  @default(true)
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  
+  @@index([userId, isActive])
+}
+
+model Subscription {
+  id              String   @id @default(uuid())
+  userId          String
+  name            String   // e.g., "Netflix", "Spotify"
+  amount          Float    // Monthly cost
+  billingCycle    String   @default("MONTHLY") // MONTHLY, YEARLY
+  nextBillingDate DateTime
+  isActive        Boolean  @default(true)
+  user            User     @relation(fields: [userId], references: [id])
+  createdAt       DateTime @default(now())
+  
+  @@index([userId, isActive])
 }

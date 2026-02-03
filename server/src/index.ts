@@ -6,13 +6,25 @@ import transactionRoutes from './routes/transactionRoutes';
 import budgetRoutes from './routes/budgetRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import reportsRoutes from './routes/reportsRoutes';
+import emiRoutes from './routes/emiRoutes';
+import subscriptionRoutes from './routes/subscriptionRoutes';
+import { errorHandler, notFoundHandler } from './middleware/errorMiddleware';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// CORS configuration for production
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:5174', 'http://localhost:5173'];
+
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+}));
+
 app.use(express.json());
 
 // Request logging middleware
@@ -22,16 +34,30 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/auth', authRoutes);
-app.use('/api', transactionRoutes);
-app.use('/api', budgetRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/reports', reportsRoutes);
+// API v1 Routes
+app.use('/auth', authRoutes); // Keep auth at root for simplicity
+app.use('/api/v1/transactions', transactionRoutes);
+app.use('/api/v1/budgets', budgetRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
+app.use('/api/v1/reports', reportsRoutes);
+app.use('/api/v1/emis', emiRoutes);
+app.use('/api/v1/subscriptions', subscriptionRoutes);
 
+// Health check
 app.get('/', (req, res) => {
-    res.send('Personal Budget Planner API is running');
+    res.json({
+        message: 'SpendZen API is running',
+        version: '1.0',
+        tagline: 'Spend smarter. Save better.'
+    });
 });
 
+// Error handling middleware (MUST be after all routes)
+app.use(notFoundHandler); // 404 handler
+app.use(errorHandler);    // Global error handler
+
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`🚀 SpendZen Server is running on port ${PORT}`);
+    console.log(`📊 API Version: v1`);
+    console.log(`🛡️  Error handling middleware active`);
 });

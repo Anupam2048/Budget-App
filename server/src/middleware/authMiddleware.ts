@@ -18,6 +18,8 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
         req.user = decoded;
+        // CRITICAL FIX: Set userId directly for controllers
+        (req as any).userId = decoded.id;
         next();
     } catch (error) {
         res.status(403).json({ message: 'Invalid token.' });

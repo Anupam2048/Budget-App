@@ -42,3 +42,6 @@ prisma/dev.db-journal
 
 # Antigravity brain artifacts (conversation history)
 .gemini/
+
+# NotebookLM exports (documentation snapshots)
+NOTEBOOKLM_EXPORT/

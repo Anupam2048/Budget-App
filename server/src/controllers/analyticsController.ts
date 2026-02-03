@@ -169,3 +169,183 @@ function formatMonthName(monthKey: string): string {
     const monthIndex = parseInt(month, 10) - 1;
     return `${monthNames[monthIndex]} ${year}`;
 }
+
+// Get AI-Powered Insights
+export const getInsights = async (req: any, res: Response) => {
+    try {
+        const userId = req.user.id;
+
+        const now = new Date();
+        const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const currentMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+        // Get current month data
+        const [currentIncome, currentExpense, currentExpensesByCategory] = await Promise.all([
+            prisma.income.aggregate({
+                where: {
+                    userId,
+                    date: { gte: currentMonth, lte: currentMonthEnd }
+                },
+                _sum: { amount: true }
+            }),
+            prisma.expense.aggregate({
+                where: {
+                    userId,
+                    date: { gte: currentMonth, lte: currentMonthEnd }
+                },
+                _sum: { amount: true }
+            }),
+            prisma.expense.groupBy({
+                by: ['category'],
+                where: {
+                    userId,
+                    date: { gte: currentMonth, lte: currentMonthEnd }
+                },
+                _sum: { amount: true },
+                orderBy: { _sum: { amount: 'desc' } }
+            })
+        ]);
+
+        // Get previous month data
+        const [previousIncome, previousExpense] = await Promise.all([
+            prisma.income.aggregate({
+                where: {
+                    userId,
+                    date: { gte: previousMonth, lte: previousMonthEnd }
+                },
+                _sum: { amount: true }
+            }),
+            prisma.expense.aggregate({
+                where: {
+                    userId,
+                    date: { gte: previousMonth, lte: previousMonthEnd }
+                },
+                _sum: { amount: true }
+            })
+        ]);
+
+        const currentIncomeTotal = currentIncome._sum.amount || 0;
+        const currentExpenseTotal = currentExpense._sum.amount || 0;
+        const previousIncomeTotal = previousIncome._sum.amount || 0;
+        const previousExpenseTotal = previousExpense._sum.amount || 0;
+
+        const currentSavings = currentIncomeTotal - currentExpenseTotal;
+        const previousSavings = previousIncomeTotal - previousExpenseTotal;
+
+        const insights: Array<{ type: string; message: string; icon: string }> = [];
+
+        // Insight 1: Month-over-month spending comparison
+        if (previousExpenseTotal > 0) {
+            const expenseChange = ((currentExpenseTotal - previousExpenseTotal) / previousExpenseTotal) * 100;
+            if (Math.abs(expenseChange) > 5) {
+                const direction = expenseChange > 0 ? 'more' : 'less';
+                const icon = expenseChange > 0 ? 'alert' : 'success';
+                insights.push({
+                    type: icon,
+                    message: `You spent ${Math.abs(expenseChange).toFixed(1)}% ${direction} this month compared to last month`,
+                    icon: expenseChange > 0 ? 'TrendingUp' : 'TrendingDown'
+                });
+            }
+        }
+
+        // Insight 2: Savings comparison
+        if (previousSavings !== 0) {
+            const savingsDiff = currentSavings - previousSavings;
+            if (Math.abs(savingsDiff) > 100) {
+                const direction = savingsDiff > 0 ? 'increased' : 'dropped';
+                const icon = savingsDiff > 0 ? 'success' : 'warning';
+                insights.push({
+                    type: icon,
+                    message: `Savings ${direction} by ₹${Math.abs(savingsDiff).toFixed(0)} compared to last month`,
+                    icon: savingsDiff > 0 ? 'TrendingUp' : 'TrendingDown'
+                });
+            }
+        }
+
+        // Insight 3: Top spending categories
+        if (currentExpensesByCategory.length > 0) {
+            const topCategories = currentExpensesByCategory.slice(0, 3);
+            const topCategoryNames = topCategories.map(c => c.category).join(', ');
+            insights.push({
+                type: 'info',
+                message: `Top spending categories: ${topCategoryNames}`,
+                icon: 'PieChart'
+            });
+        }
+
+        // Insight 4: Savings rate
+        if (currentIncomeTotal > 0) {
+            const savingsRate = (currentSavings / currentIncomeTotal) * 100;
+            if (savingsRate < 0) {
+                insights.push({
+                    type: 'alert',
+                    message: `You're spending more than you earn this month. Consider cutting unnecessary expenses`,
+                    icon: 'AlertTriangle'
+                });
+            } else if (savingsRate < 20) {
+                insights.push({
+                    type: 'warning',
+                    message: `Your savings rate is ${savingsRate.toFixed(1)}%. Try to save at least 20% of your income`,
+                    icon: 'Target'
+                });
+            } else {
+                insights.push({
+                    type: 'success',
+                    message: `Great job! You're saving ${savingsRate.toFixed(1)}% of your income`,
+                    icon: 'ThumbsUp'
+                });
+            }
+        }
+
+        // Insight 5: Budget alerts (if budgets exist)
+        const budgets = await prisma.budget.findMany({
+            where: {
+                userId,
+                monthYear: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+            }
+        });
+
+        for (const budget of budgets) {
+            const categoryExpense = currentExpensesByCategory.find(e => e.category === budget.category);
+            const spent = categoryExpense?._sum.amount || 0;
+            const percentage = (spent / budget.amount) * 100;
+
+            if (percentage >= 100) {
+                insights.push({
+                    type: 'alert',
+                    message: `You've exceeded your ${budget.category} budget by ₹${(spent - budget.amount).toFixed(0)}`,
+                    icon: 'AlertCircle'
+                });
+            } else if (percentage >= 80) {
+                insights.push({
+                    type: 'warning',
+                    message: `You've used ${percentage.toFixed(0)}% of your ${budget.category} budget`,
+                    icon: 'AlertTriangle'
+                });
+            }
+        }
+
+        res.json({
+            insights,
+            summary: {
+                currentMonth: {
+                    income: currentIncomeTotal,
+                    expense: currentExpenseTotal,
+                    savings: currentSavings
+                },
+                previousMonth: {
+                    income: previousIncomeTotal,
+                    expense: previousExpenseTotal,
+                    savings: previousSavings
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Insights Error:', error);
+        res.status(500).json({ message: 'Error generating insights' });
+    }
+};
+
