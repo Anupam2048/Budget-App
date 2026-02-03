@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios'; // Removed
+import { authAPI } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader } from '../components/ui/card';
 import { FormInput } from '../components/auth/FormInput';
@@ -57,10 +58,7 @@ export default function AuthPage({ initialView = 'login' }: AuthPageProps) {
         setLoginLoading(true);
 
         try {
-            const res = await axios.post('http://localhost:5000/auth/login', {
-                email: loginEmail,
-                password: loginPassword
-            });
+            const res = await authAPI.login(loginEmail, loginPassword);
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
             navigate('/dashboard');
@@ -93,11 +91,7 @@ export default function AuthPage({ initialView = 'login' }: AuthPageProps) {
         setSignupLoading(true);
 
         try {
-            const res = await axios.post('http://localhost:5000/auth/signup', {
-                name: signupName,
-                email: signupEmail,
-                password: signupPassword
-            });
+            const res = await authAPI.signup(signupName, signupEmail, signupPassword);
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
             navigate('/dashboard');

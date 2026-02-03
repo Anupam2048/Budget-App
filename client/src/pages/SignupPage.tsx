@@ -4,7 +4,7 @@ import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
-import axios from "axios";
+import { authAPI } from "../lib/api";
 
 export default function SignupPage() {
     const [name, setName] = useState("")
@@ -16,7 +16,7 @@ export default function SignupPage() {
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await axios.post("http://localhost:5000/auth/signup", { name, email, password });
+            const res = await authAPI.signup(name, email, password);
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("user", JSON.stringify(res.data.user));
             navigate("/dashboard");
