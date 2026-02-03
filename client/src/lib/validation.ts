@@ -54,7 +54,6 @@ export const checkDuplicateExpense = (
     newExpense: { amount: number; category: string; date: string }
 ): boolean => {
     const newDate = new Date(newExpense.date);
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 
     return expenses.some(exp => {
         const expDate = new Date(exp.date);
