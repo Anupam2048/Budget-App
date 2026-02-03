@@ -33,12 +33,29 @@ export default function Dashboard() {
 
     const fetchDashboardData = async () => {
         try {
-            const [dashRes, budgetRes, insightsRes] = await Promise.all([
-                analyticsAPI.getDashboard(),
+            // Fetch dashboard data with fallback for ad-blockers
+            let dashData = {
+                totalIncome: 0,
+                totalExpense: 0,
+                balance: 0,
+                recentTransactions: [],
+                categoryExpenses: [],
+                monthlyTrend: [],
+            };
+
+            try {
+                const response = await analyticsAPI.getDashboard();
+                dashData = response.data;
+            } catch (err) {
+                console.warn('Analytics blocked or failed (likely ad-blocker), using default stats');
+            }
+
+            const [budgetRes, insightsRes] = await Promise.all([
                 budgetAPI.getAll().catch(() => ({ data: [] })),
                 analyticsAPI.getInsights().catch(() => ({ data: { insights: [] } }))
             ]);
-            setStats(dashRes.data);
+
+            setStats(dashData);
             setBudgets(budgetRes.data || []);
             setInsights(insightsRes.data.insights || []);
         } catch (error) {
