@@ -4,7 +4,7 @@ services:
     rootDir: server
     env: node
     plan: free
-    buildCommand: npm install && npx prisma generate && npx prisma db push
+    buildCommand: rm -rf node_modules && npm install --include=dev && npx prisma generate && npx prisma db push
     startCommand: npm start
     envVars:
       - key: NODE_ENV
