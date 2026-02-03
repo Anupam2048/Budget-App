@@ -23,7 +23,7 @@ export const getAllSubscriptions = async (req: Request, res: Response) => {
 // Get single subscription
 export const getSubscriptionById = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
         const userId = (req as any).userId;
 
         const subscription = await prisma.subscription.findFirst({
@@ -86,7 +86,7 @@ export const createSubscription = async (req: Request, res: Response) => {
 // Update subscription
 export const updateSubscription = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
         const userId = (req as any).userId;
         const { name, amount, billingCycle, nextBillingDate, isActive } = req.body;
 
@@ -133,7 +133,7 @@ export const updateSubscription = async (req: Request, res: Response) => {
 // Delete subscription
 export const deleteSubscription = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
         const userId = (req as any).userId;
 
         // Check if subscription exists and belongs to user

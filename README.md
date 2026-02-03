@@ -82,6 +82,21 @@ SpendZen is a comprehensive personal finance management application designed to 
 
 ---
 
+## 📸 Screenshots
+
+_Coming Soon: Screenshots will be added after deployment_
+
+**Planned Screenshots:**
+- 📊 Dashboard Overview
+- 💸 Expense Management with Advanced Filters
+- 🎯 Budget Tracking with Progress Indicators
+- 💡 AI-Powered Insights
+- 💳 EMI Management
+- 🔄 Subscription Tracking
+- 👑 Premium Features Page
+
+---
+
 ## 🛠️ Tech Stack
 
 ### Frontend

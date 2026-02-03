@@ -23,7 +23,7 @@ export const getAllEMIs = async (req: Request, res: Response) => {
 // Get single EMI
 export const getEMIById = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
         const userId = (req as any).userId;
 
         const emi = await prisma.eMI.findFirst({
@@ -85,7 +85,7 @@ export const createEMI = async (req: Request, res: Response) => {
 // Update EMI
 export const updateEMI = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
         const userId = (req as any).userId;
         const { name, amount, totalAmount, dueDate, startDate, endDate, isActive } = req.body;
 
@@ -131,7 +131,7 @@ export const updateEMI = async (req: Request, res: Response) => {
 // Delete EMI
 export const deleteEMI = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
         const userId = (req as any).userId;
 
         // Check if EMI exists and belongs to user

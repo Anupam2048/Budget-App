@@ -69,6 +69,36 @@ export const deleteIncome = async (req: any, res: Response) => {
 }
 
 
+export const updateIncome = async (req: any, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { source, amount, date, frequency } = req.body;
+
+        // Check ownership
+        const existingIncome = await prisma.income.findFirst({
+            where: { id, userId: req.user.id }
+        });
+
+        if (!existingIncome) {
+            return res.status(404).json({ message: 'Income not found' });
+        }
+
+        const income = await prisma.income.update({
+            where: { id },
+            data: {
+                source,
+                amount: parseFloat(amount),
+                date: new Date(date),
+                frequency
+            }
+        });
+        res.json(income);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating income' });
+    }
+};
+
+
 // --- EXPENSES ---
 export const getExpenses = async (req: any, res: Response) => {
     try {
@@ -155,3 +185,41 @@ export const deleteExpense = async (req: any, res: Response) => {
         res.status(500).json({ message: 'Error deleting expense' });
     }
 }
+
+
+export const updateExpense = async (req: any, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { category, amount, date, paymentMethod, notes } = req.body;
+
+        // Check ownership
+        const existingExpense = await prisma.expense.findFirst({
+            where: { id, userId: req.user.id }
+        });
+
+        if (!existingExpense) {
+            return res.status(404).json({ message: 'Expense not found' });
+        }
+
+        // Validate amount if present
+        if (amount && (amount <= 0 || amount > 10000000)) {
+            return res.status(400).json({
+                message: 'Amount must be between 0.01 and 10,000,000'
+            });
+        }
+
+        const expense = await prisma.expense.update({
+            where: { id },
+            data: {
+                ...(category && { category }),
+                ...(amount && { amount: parseFloat(amount) }),
+                ...(date && { date: new Date(date) }),
+                ...(notes !== undefined && { notes }),
+                ...(paymentMethod && { paymentMethod })
+            }
+        });
+        res.json(expense);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating expense' });
+    }
+};
