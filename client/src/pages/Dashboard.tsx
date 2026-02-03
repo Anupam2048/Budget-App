@@ -203,16 +203,16 @@ export default function Dashboard() {
                                         cx="50%"
                                         cy="50%"
                                         labelLine={false}
-                                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                        label={({ name, percent }: any) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
                                         outerRadius={100}
                                         fill="#8884d8"
                                         dataKey="value"
                                     >
-                                        {categoryData.map((entry, index) => (
+                                        {categoryData.map((_, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip formatter={(value: number) => `${symbol}${value.toFixed(2)}`} />
+                                    <Tooltip formatter={(value: any) => `${symbol}${Number(value).toFixed(2)}`} />
                                 </PieChart>
                             </ResponsiveContainer>
                         ) : (
@@ -241,7 +241,7 @@ export default function Dashboard() {
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="month" />
                                 <YAxis />
-                                <Tooltip formatter={(value: number) => `${symbol}${value.toFixed(2)}`} />
+                                <Tooltip formatter={(value: any) => `${symbol}${Number(value).toFixed(2)}`} />
                                 <Legend />
                                 <Bar dataKey="income" fill="#10B981" name="Income" />
                                 <Bar dataKey="expense" fill="#EF4444" name="Expense" />

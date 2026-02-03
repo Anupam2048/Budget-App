@@ -11,7 +11,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 export default function SettingsPage() {
     const navigate = useNavigate();
     const { refreshCurrency } = useCurrency();
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<any>(null); // Kept for state updates
     const [loading, setLoading] = useState(true);
 
     const [profileForm, setProfileForm] = useState({
