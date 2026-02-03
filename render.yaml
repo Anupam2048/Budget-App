@@ -1,6 +1,7 @@
 services:
   - type: web
     name: spendzen-api
+    rootDir: server
     env: node
     plan: free
     buildCommand: npm install && npx prisma generate && npx prisma db push
